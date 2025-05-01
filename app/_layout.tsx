@@ -1,29 +1,29 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import React, { useState } from 'react';
+import { Slot } from 'expo-router';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+type Produto = {
+  id: string;
+  nome: string;
+  preco: number;
+  imagem: any;
+};
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+type ItemCarrinho = Produto & { quantidade: number };
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
+export const CarrinhoContext = React.createContext<{
+  carrinho: ItemCarrinho[];
+  setCarrinho: React.Dispatch<React.SetStateAction<ItemCarrinho[]>>;
+}>({
+  carrinho: [],
+  setCarrinho: () => {},
+});
+
+export default function Layout() {
+  const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <CarrinhoContext.Provider value={{ carrinho, setCarrinho }}>
+      <Slot />
+    </CarrinhoContext.Provider>
   );
 }
